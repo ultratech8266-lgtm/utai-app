@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip build-essential git zip unzip \
+          openjdk-17-jdk autoconf libtool automake \
+          libltdl-dev libffi-dev libssl-dev
+        pip install buildozer==1.5.0 cython==0.29.33
+
+    - name: Build APK
+      run: |
+        yes | buildozer android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: utai-app
+        path: bin/*.apk
